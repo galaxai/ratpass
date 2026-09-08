@@ -7,15 +7,17 @@ import urllib.parse
 from collections.abc import Mapping
 from typing import Any
 
+from ratpass import storage
 from ratpass.config import CLIENT_ID_ENV, Config, ConfigError
 from ratpass.metadata import PROJECT_NAME
 from ratpass.providers.base import (
     CALLBACK_PORT,
     AuthorizationError,
     BaseProvider,
+    Pkce,
     _request,
 )
-from ratpass.providers.types import Credential, Pkce
+from ratpass.types import Credential
 
 ISSUER = "https://auth.openai.com"
 # POLLING_SAFETY_MARGIN = 3.0
@@ -112,7 +114,14 @@ class CodexProvider(BaseProvider):
             ),
         )
         tokens.setdefault("refresh_token", refresh_token)
-        return self.credential_from_tokens(tokens)
+        credential = self.credential_from_tokens(tokens)
+        storage.save(credential)
+        return credential
 
     def headless_authorize(self) -> Credential:
         raise NotImplementedError
+
+
+if __name__ == "__main__":
+    provider = CodexProvider()
+    provider.auth()

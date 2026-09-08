@@ -58,3 +58,21 @@ from ratpass.providers import CodexProvider
 provider = CodexProvider()
 credential = provider.auth()
 ```
+
+Successful login saves the credentials to `~/.ratpass/credentials/codex.json`.
+To reuse them in another process:
+
+```python
+from ratpass.storage import load
+
+credential = load("codex")
+if credential is not None:
+    credential = provider.refresh(credential.refresh)
+```
+
+Refresh automatically saves the updated tokens to the same file. Storage uses
+plaintext JSON with owner-only file permissions on POSIX systems.
+
+For explicit storage operations, use `save(credential)` and `load("codex")` from
+`ratpass.storage`. Both accept an optional `directory` keyword argument; provider
+login and refresh use the default directory shown above.

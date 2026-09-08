@@ -1,8 +1,8 @@
 """Authentication providers shipped with RatPass."""
 
-from ratpass.providers.base import AuthorizationError, BaseProvider
+from ratpass.providers.base import AuthorizationError, BaseProvider, Pkce
 from ratpass.providers.codex import CodexProvider
-from ratpass.providers.types import Credential, Pkce
+from ratpass.types import Credential
 
 __all__ = [
     "AuthorizationError",

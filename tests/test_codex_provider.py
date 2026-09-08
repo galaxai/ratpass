@@ -1,14 +1,16 @@
 import base64
 import json
 import urllib.request
+from pathlib import Path
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlencode, urlparse
 
 import pytest
 
 from ratpass.metadata import PROJECT_NAME, USER_AGENT
+from ratpass.providers.base import Pkce
 from ratpass.providers.codex import CodexProvider
-from ratpass.providers.types import Pkce
+from ratpass.storage import load
 
 
 def _jwt(payload: dict[str, object]) -> str:
@@ -77,7 +79,10 @@ def test_token_response_becomes_credential() -> None:
     assert credential.metadata == {"id_token": id_token}
 
 
-def test_browser_flow_receives_callback_and_returns_credential() -> None:
+def test_browser_flow_receives_callback_and_returns_credential(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
     provider = CodexProvider("app_test", callback_port=0, timeout=2)
     tokens = {
         "access_token": "access",
@@ -98,6 +103,7 @@ def test_browser_flow_receives_callback_and_returns_credential() -> None:
 
     exchange.assert_called_once()
     assert credential.access == "access"
+    assert load("codex") == credential
 
 
 def test_headless_flow_is_not_implemented_yet() -> None:
@@ -109,7 +115,11 @@ def test_headless_flow_is_not_implemented_yet() -> None:
         provider.headless_authorize()
 
 
-def test_refresh_keeps_refresh_token_when_server_does_not_rotate_it() -> None:
+def test_refresh_keeps_refresh_token_when_server_does_not_rotate_it(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
     provider = CodexProvider("app_test")
     with patch(
         "ratpass.providers.codex._request",
@@ -122,3 +132,4 @@ def test_refresh_keeps_refresh_token_when_server_does_not_rotate_it() -> None:
     assert body["refresh_token"] == ["existing-refresh"]
     assert credential.refresh == "existing-refresh"
     assert credential.access == "new-access"
+    assert load("codex") == credential

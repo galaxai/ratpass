@@ -3,8 +3,8 @@ from urllib.parse import parse_qs, urlparse
 
 import pytest
 
+from ratpass.providers.base import Pkce
 from ratpass.providers.codex import CodexProvider
-from ratpass.providers.types import Pkce
 
 
 def test_uses_configured_client_id(

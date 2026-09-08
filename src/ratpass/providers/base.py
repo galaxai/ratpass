@@ -14,14 +14,22 @@ import urllib.request
 import webbrowser
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from functools import partial
 from typing import Any
 
+from ratpass import storage
 from ratpass.metadata import USER_AGENT
-from ratpass.providers.types import Credential, Pkce
+from ratpass.types import Credential
 
 CALLBACK_PORT = 1455
 DEFAULT_TIMEOUT = 600.0
+
+
+@dataclass(frozen=True, slots=True)
+class Pkce:
+    verifier: str  # the secret we keep
+    challenge: str  # SHA-256(verifier)
 
 
 class AuthorizationError(RuntimeError):
@@ -247,9 +255,11 @@ class BaseProvider(ABC):
                 )
             if "error" in result:
                 raise AuthorizationError(result["error"])
-            return self.credential_from_tokens(
+            credential = self.credential_from_tokens(
                 self.exchange(result["code"], redirect, pkce)
             )
+            storage.save(credential)
+            return credential
         finally:
             server.shutdown()
             server.server_close()
