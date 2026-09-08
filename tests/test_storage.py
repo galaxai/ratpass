@@ -56,7 +56,11 @@ def test_failed_replace_preserves_previous_credential(tmp_path: Path) -> None:
     ids=lambda provider: provider.__name__,
 )
 def test_provider_method_id_is_valid_filename(provider: type[BaseProvider]) -> None:
-    method_id = getattr(provider, "method_id", None)
+    method_id = getattr(
+        provider(client_id="app_test", issuer="https://issuer.example"),
+        "method_id",
+        None,
+    )
     assert isinstance(method_id, str)
     assert re.fullmatch(r"[A-Za-z0-9_-]+", method_id)
     assert not ntpath.isreserved(method_id)

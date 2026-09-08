@@ -1,6 +1,7 @@
 import base64
 import json
 import urllib.request
+from dataclasses import FrozenInstanceError
 from pathlib import Path
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlencode, urlparse
@@ -77,6 +78,21 @@ def test_token_response_becomes_credential() -> None:
     assert credential.refresh == "refresh"
     assert credential.expires == 160_000
     assert credential.metadata == {"id_token": id_token}
+
+
+def test_method_id_cannot_be_reassigned() -> None:
+    provider = CodexProvider("app_test")
+
+    with pytest.raises(AttributeError):
+        provider.method_id = "../codex"  # ty: ignore[invalid-assignment]
+
+    credential = provider.credential_from_tokens(
+        {"access_token": "access", "refresh_token": "refresh", "expires_in": 60}
+    )
+    with pytest.raises(FrozenInstanceError):
+        credential.method_id = "../codex"  # ty: ignore[invalid-assignment]
+
+    assert provider.method_id == credential.method_id == "codex"
 
 
 def test_browser_flow_receives_callback_and_returns_credential(
