@@ -190,6 +190,11 @@ class BaseProvider(ABC):
         self.timeout = timeout
         self.user_agent = user_agent
 
+    @property
+    @abstractmethod
+    def method_id(self) -> str:
+        """The read-only identifier used for this provider's credentials."""
+
     @abstractmethod
     def authorize_url(self, redirect: str, pkce: Pkce, state: str) -> str:
         """Build the provider-specific authorization URL."""

@@ -26,7 +26,10 @@ ISSUER = "https://auth.openai.com"
 class CodexProvider(BaseProvider):
     """Authenticate through the Codex OAuth application."""
 
-    method_id = "codex"
+    @property
+    def method_id(self) -> str:
+        """The read-only identifier used for this provider's credentials."""
+        return "codex"
 
     def __init__(
         self,

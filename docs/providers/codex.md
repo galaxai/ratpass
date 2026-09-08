@@ -64,7 +64,9 @@ To reuse them in another process:
 
 ```python
 from ratpass.storage import load
+from ratpass.providers import CodexProvider
 
+provider = CodexProvider()
 credential = load("codex")
 if credential is not None:
     credential = provider.refresh(credential.refresh)
