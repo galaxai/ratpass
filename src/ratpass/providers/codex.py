@@ -45,6 +45,7 @@ class CodexProvider(BaseProvider):
         )
 
     def authorize_url(self, redirect: str, pkce: Pkce, state: str) -> str:
+        """Retruns authorize url for codex provider"""
         query = urllib.parse.urlencode(
             {
                 "response_type": "code",
@@ -65,7 +66,7 @@ class CodexProvider(BaseProvider):
         return f"{self.issuer}/oauth/authorize?{query}"
 
     def credential_from_tokens(self, tokens: Mapping[str, Any]) -> Credential:
-        # TODO clean validation up
+        """Extracts and validated credential from tokens"""
         refresh = tokens.get("refresh_token")
         access = tokens.get("access_token")
         expires_in = tokens.get("expires_in")
