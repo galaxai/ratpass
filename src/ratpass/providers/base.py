@@ -242,7 +242,9 @@ class BaseProvider(ABC):
             if open_browser:
                 opener(url)
             if not done.wait(timeout=self.timeout):
-                raise TimeoutError("OAuth callback was not received before timeout")
+                raise AuthorizationError(
+                    "OAuth callback was not received before timeout"
+                )
             if "error" in result:
                 raise AuthorizationError(result["error"])
             return self.credential_from_tokens(
