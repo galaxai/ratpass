@@ -72,9 +72,10 @@ class CodexProvider(BaseProvider):
         # Validate
         if not isinstance(expires_in, (int, float)) or expires_in < 0:
             raise AuthorizationError("Token response contains an invalid expires_in")
-        if refresh is None or access is None:
-            raise AuthorizationError("Token response contains invalid data")
-
+        if not isinstance(access, str) or not access:
+            raise AuthorizationError("Token response contains invalid access_token")
+        if not isinstance(refresh, str) or not refresh:
+            raise AuthorizationError("Token response contains invalid refresh_token")
         metadata: dict[str, Any] = {}
         id_token = tokens.get("id_token")
         if isinstance(id_token, str) and id_token:
@@ -114,7 +115,3 @@ class CodexProvider(BaseProvider):
 
     def headless_authorize(self) -> Credential:
         raise NotImplementedError
-
-
-if __name__ == "__main__":
-    print(CodexProvider().auth())
