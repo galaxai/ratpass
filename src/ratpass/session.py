@@ -85,6 +85,7 @@ class Session:
         self.save()
         return creds
 
+    @property
     def openai_options(self) -> OpenAIOptions:
         """Return client options using current credentials without refreshing.
 
