@@ -61,3 +61,8 @@ Install the test dependencies and run the suite:
 uv sync --extra test
 uv run pytest
 ```
+
+### Testing AI SDK
+```sh
+RUN_OPENAI_TESTS=1 uv run --extra test pytest tests/live/ -v -s
+```
