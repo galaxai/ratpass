@@ -2,6 +2,14 @@
 
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import TypedDict
+
+
+class OpenAIOptions(TypedDict):
+    """Provider authentication and endpoint options for an OpenAI client."""
+
+    api_key: str
+    base_url: str
 
 
 class ProviderId(StrEnum):

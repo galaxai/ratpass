@@ -18,9 +18,8 @@ from dataclasses import dataclass
 from functools import partial
 from typing import Any
 
-from ratpass import storage
 from ratpass.metadata import USER_AGENT
-from ratpass.types import Credential
+from ratpass.types import Credential, OpenAIOptions
 
 CALLBACK_PORT = 1455
 DEFAULT_TIMEOUT = 600.0
@@ -207,6 +206,14 @@ class BaseProvider(ABC):
     def headless_authorize(self) -> Credential:
         """Run the provider-specific headless authorization flow."""
 
+    @abstractmethod
+    def openai_options(self, creds: Credential) -> OpenAIOptions:
+        """Build client options from credentials without refreshing or saving."""
+
+    @abstractmethod
+    def refresh(self, refresh_token: str) -> Credential:
+        """Exchange a refresh token for credentials without saving them."""
+
     def exchange(self, code: str, redirect: str, pkce: Pkce) -> dict[str, Any]:
         """Exchange an authorization code for tokens."""
 
@@ -234,7 +241,7 @@ class BaseProvider(ABC):
         open_browser: bool = True,
         opener: Callable[[str], Any] = webbrowser.open,
     ) -> Credential:
-        """Run the shared localhost browser authorization flow."""
+        """Run localhost browser authorization and return credentials without saving."""
 
         pkce = generate_pkce()
         state = _base64url(secrets.token_bytes(32))
@@ -263,7 +270,6 @@ class BaseProvider(ABC):
             credential = self.credential_from_tokens(
                 self.exchange(result["code"], redirect, pkce)
             )
-            storage.save(credential)
             return credential
         finally:
             server.shutdown()
@@ -271,7 +277,7 @@ class BaseProvider(ABC):
             thread.join(timeout=2)
 
     def auth(self, *, headless: bool = False) -> Credential:
-        """Run browser or headless authorization."""
+        """Run browser or headless authorization and return unsaved credentials."""
 
         if headless:
             return self.headless_authorize()

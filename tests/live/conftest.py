@@ -7,8 +7,7 @@ import zlib
 
 import pytest
 
-from ratpass.providers import CodexProvider
-from ratpass.storage import load
+from ratpass.session import Session
 
 
 @pytest.fixture(scope="module")
@@ -18,14 +17,14 @@ def model():
 
 @pytest.fixture(scope="module")
 def client_options():
-    credential = load("codex")
-    if credential is None:
-        pytest.fail("No saved Codex credentials. Run CodexProvider().auth() first.")
+    session = Session.load("codex")
+    if session is None:
+        pytest.fail('No saved Codex credentials. Run Session.login("codex") first.')
+    credential = session.credentials
     if credential.expires <= (time.time() + 60) * 1000:
-        credential = CodexProvider().refresh(credential.refresh)
+        session.refresh()
     return {
-        "api_key": credential.access,
-        "base_url": "https://chatgpt.com/backend-api/codex",
+        **session.openai_options(),
         "timeout": 120,
         "max_retries": 0,
     }
