@@ -17,7 +17,7 @@ from ratpass.providers.base import (
     Pkce,
     _request,
 )
-from ratpass.types import Credential
+from ratpass.types import Credential, ProviderId
 
 ISSUER = "https://auth.openai.com"
 # POLLING_SAFETY_MARGIN = 3.0
@@ -29,7 +29,7 @@ class CodexProvider(BaseProvider):
     @property
     def method_id(self) -> str:
         """The read-only identifier used for this provider's credentials."""
-        return "codex"
+        return ProviderId.CODEX.value
 
     def __init__(
         self,
