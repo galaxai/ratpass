@@ -92,12 +92,12 @@ def test_simple_message(client, model):
 
 def test_message_response_message(client, model):
     messages = [user("Choose a number from 10 to 99. Reply with only the number.")]
-    output = request(messages, client, model)
+    output = request(messages, client, model, include=["reasoning.encrypted_content"])
     first = output_text(output)
     print(f"\nConversation first response: {first}", flush=True)
     assert first.isdigit() and 10 <= int(first) <= 99, f"Unexpected number: {first}"
-    # Replay the actual assistant reply; storage is disabled on this endpoint.
-    messages += [item for item in output if item.get("type") == "message"]
+    # Replay all output, including encrypted reasoning, because storage is disabled.
+    messages += output
     messages.append(
         user("Add 1 to the number you just chose. Reply with only the number.")
     )

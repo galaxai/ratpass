@@ -31,6 +31,11 @@ def run_agent(
     return_history=False,
     **kwargs,
 ):
+    async def consume_events(_ctx, events):
+        # The Codex endpoint requires streaming transport, even with Agent.run().
+        async for _event in events:
+            pass
+
     async def run():
         async with AsyncOpenAI(**client_options) as client:
             agent = Agent(
@@ -41,11 +46,13 @@ def run_agent(
                 model_settings=OpenAIResponsesModelSettings(openai_store=False),
                 **kwargs,
             )
-            async with agent.run_stream(
-                prompt, message_history=message_history
-            ) as result:
-                reply = await result.get_output()
-                return (reply, result.all_messages()) if return_history else reply
+            result = await agent.run(
+                prompt,
+                message_history=message_history,
+                event_stream_handler=consume_events,
+            )
+            reply = result.output
+            return (reply, result.all_messages()) if return_history else reply
 
     return asyncio.run(run())
 
