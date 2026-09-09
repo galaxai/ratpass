@@ -46,10 +46,10 @@ Save this as `login.py` and run it with `uv run python login.py` (or
 `python login.py` if you installed with pip):
 
 ```python
-from ratpass.providers import CodexProvider
+from ratpass.session import Session
 
-provider = CodexProvider()
-credential = provider.auth()
+session = Session.login("codex")
+creds = session.credentials
 ```
 
 

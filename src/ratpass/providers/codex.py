@@ -7,7 +7,6 @@ import urllib.parse
 from collections.abc import Mapping
 from typing import Any
 
-from ratpass import storage
 from ratpass.config import CLIENT_ID_ENV, Config, ConfigError
 from ratpass.metadata import PROJECT_NAME
 from ratpass.providers.base import (
@@ -17,9 +16,10 @@ from ratpass.providers.base import (
     Pkce,
     _request,
 )
-from ratpass.types import Credential, ProviderId
+from ratpass.types import Credential, OpenAIOptions, ProviderId
 
 ISSUER = "https://auth.openai.com"
+CODEX_BASE_URL = "https://chatgpt.com/backend-api/codex"
 # POLLING_SAFETY_MARGIN = 3.0
 
 
@@ -50,7 +50,7 @@ class CodexProvider(BaseProvider):
         )
 
     def authorize_url(self, redirect: str, pkce: Pkce, state: str) -> str:
-        """Retruns authorize url for codex provider"""
+        """Build the Codex authorization URL."""
         query = urllib.parse.urlencode(
             {
                 "response_type": "code",
@@ -71,7 +71,7 @@ class CodexProvider(BaseProvider):
         return f"{self.issuer}/oauth/authorize?{query}"
 
     def credential_from_tokens(self, tokens: Mapping[str, Any]) -> Credential:
-        """Extracts and validated credential from tokens"""
+        """Validate the token response and convert it into a credential."""
         refresh = tokens.get("refresh_token")
         access = tokens.get("access_token")
         expires_in = tokens.get("expires_in")
@@ -96,8 +96,17 @@ class CodexProvider(BaseProvider):
             metadata=metadata,
         )
 
+    def openai_options(self, creds: Credential) -> OpenAIOptions:
+        """Return the current access token and Codex endpoint for an OpenAI client."""
+        return {"api_key": creds.access, "base_url": CODEX_BASE_URL}
+
     def refresh(self, refresh_token: str) -> Credential:
-        """Use a Codex refresh token to obtain a fresh credential."""
+        """Exchange a Codex refresh token for credentials without saving them.
+
+        Keep the supplied refresh token if the response omits a replacement.
+        Raise ValueError for an empty refresh token; request and token validation
+        errors propagate.
+        """
 
         if not refresh_token:
             raise ValueError("refresh_token must not be empty")
@@ -118,7 +127,6 @@ class CodexProvider(BaseProvider):
         )
         tokens.setdefault("refresh_token", refresh_token)
         credential = self.credential_from_tokens(tokens)
-        storage.save(credential)
         return credential
 
     def headless_authorize(self) -> Credential:

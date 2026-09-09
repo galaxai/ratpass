@@ -119,7 +119,7 @@ def test_browser_flow_receives_callback_and_returns_credential(
 
     exchange.assert_called_once()
     assert credential.access == "access"
-    assert load("codex") == credential
+    assert load("codex") is None
 
 
 def test_headless_flow_is_not_implemented_yet() -> None:
@@ -148,4 +148,4 @@ def test_refresh_keeps_refresh_token_when_server_does_not_rotate_it(
     assert body["refresh_token"] == ["existing-refresh"]
     assert credential.refresh == "existing-refresh"
     assert credential.access == "new-access"
-    assert load("codex") == credential
+    assert load("codex") is None
