@@ -14,6 +14,14 @@ class Providers(Enum):
 
     @classmethod
     def create_provider(cls, method_id: str) -> BaseProvider:
+        """Return a new provider for a stored method identifier.
+
+        Raises:
+            ValueError: If the identifier is unknown or has no registered provider.
+            ratpass.config.ConfigError: If required provider configuration is missing.
+
+        Other exceptions from provider initialization propagate to the caller.
+        """
         try:
             provider_id = ProviderId(method_id)
             member = cls[provider_id.name]
