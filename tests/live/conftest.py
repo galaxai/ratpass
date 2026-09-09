@@ -24,7 +24,7 @@ def client_options():
     if credential.expires <= (time.time() + 60) * 1000:
         session.refresh()
     return {
-        **session.openai_options(),
+        **session.openai_options,
         "timeout": 120,
         "max_retries": 0,
     }

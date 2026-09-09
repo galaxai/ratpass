@@ -97,7 +97,7 @@ if session is None:
 if session.credentials.expires <= (time.time() + 60) * 1000:
     session.refresh()
 
-with OpenAI(**session.openai_options(), timeout=120, max_retries=0) as client:
+with OpenAI(**session.openai_options, timeout=120, max_retries=0) as client:
     with client.responses.create(
         model=os.environ["OPENAI_TEST_MODEL"],  # Set to a model your account can use.
         instructions="Answer briefly.",
@@ -113,9 +113,9 @@ with OpenAI(**session.openai_options(), timeout=120, max_retries=0) as client:
     print()
 ```
 
-`session.openai_options()` returns `api_key` and `base_url`, with the endpoint
+`session.openai_options` returns `api_key` and `base_url`, with the endpoint
 `https://chatgpt.com/backend-api/codex` defined by `CodexProvider`. Timeouts and
-retries remain caller options. This method does not refresh tokens, save
+retries remain caller options. Accessing this property does not refresh tokens, save
 credentials, or make network requests.
 
 Options are a snapshot of the current credentials. After `session.refresh()`,

@@ -45,7 +45,7 @@ def test_login_saves_credentials(creds: Credential) -> None:
 
 def test_refresh_rotates_and_saves_credentials(creds: Credential) -> None:
     session = Session(CodexProvider("app_test"), creds)
-    options = session.openai_options()
+    options = session.openai_options
     assert options == {
         "api_key": "old-access",
         "base_url": "https://chatgpt.com/backend-api/codex",
@@ -62,7 +62,7 @@ def test_refresh_rotates_and_saves_credentials(creds: Credential) -> None:
     assert refreshed == session.credentials == storage.load("codex")
     assert refreshed.refresh == "new-refresh"
     assert refreshed.access == "new-access"
-    assert session.openai_options()["api_key"] == "new-access"
+    assert session.openai_options["api_key"] == "new-access"
     assert options["api_key"] == "old-access"
 
 
