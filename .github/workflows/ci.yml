@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: ty and Ruff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v9
+        with:
+          python-version: '3.14'
+      - run: uv sync --locked --extra test
+      - run: uvx ty check --output-format github
+      - run: uvx ruff check . --output-format github
+
+  tests:
+    name: Tests (excluding live)
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v9
+        with:
+          python-version: '3.14'
+      - run: uv sync --locked --extra test
+      - run: uv run --no-sync pytest --ignore=tests/live -m "not live"
