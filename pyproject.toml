@@ -26,3 +26,9 @@ build-backend = "uv_build"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["live: opt-in OpenAI requests using saved credentials; never run in CI"]
+
+[dependency-groups]
+dev = [
+    "ruff==0.16.6",
+    "ty==0.0.79",
+]
