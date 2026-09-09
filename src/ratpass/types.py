@@ -1,6 +1,13 @@
 """Shared credential model."""
 
 from dataclasses import dataclass
+from enum import StrEnum
+
+
+class ProviderId(StrEnum):
+    """Stable identifiers used to save and load provider credentials."""
+
+    CODEX = "codex"
 
 
 @dataclass(frozen=True, slots=True)
