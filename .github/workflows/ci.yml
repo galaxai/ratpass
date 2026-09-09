@@ -17,8 +17,8 @@ jobs:
         with:
           python-version: '3.14'
       - run: uv sync --locked --extra test
-      - run: uvx ty check --output-format github
-      - run: uvx ruff check . --output-format github
+      - run: uv run --no-sync ty check --output-format github
+      - run: uv run --no-sync ruff check . --output-format github
 
   tests:
     name: Tests (excluding live)
